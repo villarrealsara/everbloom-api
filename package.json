@@ -1,0 +1,18 @@
+{
+  "name": "everbloom-api",
+  "version": "1.0.0",
+  "description": "EVERBLOOM - API REST de registro e inicio de sesion (GA7-220501096-AA5-EV01)",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node --env-file=.env src/server.js",
+    "probar": "node --env-file=.env src/pruebas/probarApi.js"
+  },
+  "author": "Sara Julieth Villarreal Ortiz",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.22.3",
+    "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.11.0"
+  }
+}
