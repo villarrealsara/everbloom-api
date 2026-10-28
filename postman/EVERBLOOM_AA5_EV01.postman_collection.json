@@ -1,0 +1,542 @@
+{
+  "info": {
+    "name": "EVERBLOOM API - AA5-EV01",
+    "description": "Colección de pruebas de la API de registro e inicio de sesión. Aprendiz: Sara Julieth Villarreal Ortiz.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "0. Salud",
+      "item": [
+        {
+          "name": "GET salud de la API",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/salud",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "salud"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código de estado 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"La respuesta es JSON\", function () { pm.response.to.be.json; });",
+                  "pm.test(\"estado es ok\", function () { pm.expect(pm.response.json().estado).to.eql(\"ok\"); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "1. Registro",
+      "item": [
+        {
+          "name": "POST registro - exitoso (201)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/registro",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "registro"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombres\": \"Sara\",\n  \"apellidos\": \"Villarreal\",\n  \"correo\": \"{{correo}}\",\n  \"contrasena\": \"clave123\",\n  \"telefono\": \"3001234567\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set(\"correo\", \"sara.\" + Date.now() + \"@everbloom.com\");"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código de estado 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.test(\"La respuesta es JSON\", function () { pm.response.to.be.json; });",
+                  "pm.test(\"devuelve el usuario sin contraseña\", function () { var j = pm.response.json(); pm.expect(j.usuario.correo).to.eql(pm.collectionVariables.get(\"correo\")); pm.expect(j.usuario).to.not.have.property(\"contrasena\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST registro - correo repetido (409)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/registro",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "registro"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombres\": \"Sara\",\n  \"apellidos\": \"Villarreal\",\n  \"correo\": \"{{correo}}\",\n  \"contrasena\": \"clave123\",\n  \"telefono\": \"3001234567\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código de estado 409\", function () { pm.response.to.have.status(409); });",
+                  "pm.test(\"La respuesta es JSON\", function () { pm.response.to.be.json; });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST registro - datos inválidos (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/registro",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "registro"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombres\": \"\",\n  \"apellidos\": \"Villarreal\",\n  \"correo\": \"esto-no-es-un-correo\",\n  \"contrasena\": \"123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código de estado 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"La respuesta es JSON\", function () { pm.response.to.be.json; });",
+                  "pm.test(\"lista los errores\", function () { pm.expect(pm.response.json().detalles.length).to.be.above(0); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST registro - sin cuerpo (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/registro",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "registro"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código de estado 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"La respuesta es JSON\", function () { pm.response.to.be.json; });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2. Inicio de sesión",
+      "item": [
+        {
+          "name": "POST login - exitoso (200)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correo\": \"{{correo}}\",\n  \"contrasena\": \"clave123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código de estado 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"La respuesta es JSON\", function () { pm.response.to.be.json; });",
+                  "pm.test(\"devuelve un token\", function () { var j = pm.response.json(); pm.expect(j.token).to.be.a(\"string\"); pm.collectionVariables.set(\"token\", j.token); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST login - contraseña incorrecta (401)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correo\": \"{{correo}}\",\n  \"contrasena\": \"claveEquivocada\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código de estado 401\", function () { pm.response.to.have.status(401); });",
+                  "pm.test(\"La respuesta es JSON\", function () { pm.response.to.be.json; });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST login - correo que no existe (401)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correo\": \"no.existe@everbloom.com\",\n  \"contrasena\": \"clave123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código de estado 401\", function () { pm.response.to.have.status(401); });",
+                  "pm.test(\"La respuesta es JSON\", function () { pm.response.to.be.json; });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST login - falta la contraseña (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correo\": \"{{correo}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código de estado 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"La respuesta es JSON\", function () { pm.response.to.be.json; });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "3. Ruta privada",
+      "item": [
+        {
+          "name": "GET perfil - con token (200)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/perfil",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "perfil"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código de estado 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"La respuesta es JSON\", function () { pm.response.to.be.json; });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET perfil - sin token (401)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/perfil",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "perfil"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código de estado 401\", function () { pm.response.to.have.status(401); });",
+                  "pm.test(\"La respuesta es JSON\", function () { pm.response.to.be.json; });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "4. Errores generales",
+      "item": [
+        {
+          "name": "GET ruta que no existe (404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/ruta/inventada",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ruta",
+                "inventada"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código de estado 404\", function () { pm.response.to.have.status(404); });",
+                  "pm.test(\"La respuesta es JSON\", function () { pm.response.to.be.json; });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000/api"
+    },
+    {
+      "key": "correo",
+      "value": "sara.prueba@everbloom.com"
+    },
+    {
+      "key": "token",
+      "value": ""
+    }
+  ]
+}
