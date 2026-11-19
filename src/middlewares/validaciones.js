@@ -36,3 +36,86 @@ export function validarLogin(peticion, respuesta, siguiente) {
   if (errores.length > 0) return responderErrores(respuesta, errores);
   return siguiente();
 }
+
+// ---------- Categorias ----------
+export function validarCategoria(peticion, respuesta, siguiente) {
+  const { nombreCategoria, descripcion } = peticion.body || {};
+  const errores = [];
+  if (!esTexto(nombreCategoria)) errores.push('El campo nombreCategoria es obligatorio.');
+  else if (nombreCategoria.trim().length > 100) errores.push('nombreCategoria debe tener máximo 100 caracteres.');
+  if (descripcion !== undefined && descripcion !== null && String(descripcion).length > 200) {
+    errores.push('descripcion debe tener máximo 200 caracteres.');
+  }
+  if (errores.length > 0) return responderErrores(respuesta, errores);
+  peticion.body = {
+    nombreCategoria: nombreCategoria.trim(),
+    descripcion: descripcion ? String(descripcion).trim() : null,
+  };
+  return siguiente();
+}
+
+// ---------- Productos ----------
+export function validarProducto(peticion, respuesta, siguiente) {
+  const { idCategoria, nombreProducto, descripcion, precio, imagen, cantidad, estadoProducto } = peticion.body || {};
+  const errores = [];
+  if (!esTexto(nombreProducto)) errores.push('El campo nombreProducto es obligatorio.');
+  else if (nombreProducto.trim().length > 150) errores.push('nombreProducto debe tener máximo 150 caracteres.');
+  if (!Number.isInteger(Number(idCategoria)) || Number(idCategoria) <= 0) errores.push('idCategoria debe ser un número entero positivo.');
+  if (precio === undefined || precio === null || precio === '' || Number.isNaN(Number(precio)) || Number(precio) < 0) {
+    errores.push('precio debe ser un número mayor o igual a cero.');
+  }
+  if (cantidad !== undefined && (!Number.isInteger(Number(cantidad)) || Number(cantidad) < 0)) {
+    errores.push('cantidad debe ser un número entero mayor o igual a cero.');
+  }
+  if (estadoProducto !== undefined && typeof estadoProducto !== 'boolean') errores.push('estadoProducto debe ser true o false.');
+  if (errores.length > 0) return responderErrores(respuesta, errores);
+  peticion.body = {
+    idCategoria: Number(idCategoria),
+    nombreProducto: nombreProducto.trim(),
+    descripcion: descripcion ? String(descripcion).trim() : null,
+    precio: Number(precio),
+    imagen: imagen ? String(imagen).trim() : null,
+    cantidad: cantidad === undefined ? 0 : Number(cantidad),
+    estadoProducto,
+  };
+  return siguiente();
+}
+
+export function validarInventario(peticion, respuesta, siguiente) {
+  const { cantidad } = peticion.body || {};
+  if (!Number.isInteger(cantidad) || cantidad < 0) {
+    return responderErrores(respuesta, ['cantidad debe ser un número entero mayor o igual a cero.']);
+  }
+  return siguiente();
+}
+
+// ---------- Pedidos ----------
+const ESTADOS_PEDIDO = ['Pendiente', 'En proceso', 'Enviado', 'Entregado'];
+
+export function validarPedido(peticion, respuesta, siguiente) {
+  const { items } = peticion.body || {};
+  const errores = [];
+  if (!Array.isArray(items) || items.length === 0) {
+    errores.push('items debe ser una lista con al menos un producto.');
+  } else {
+    items.forEach((item, i) => {
+      const n = i + 1;
+      if (!Number.isInteger(item.idProducto) || item.idProducto <= 0) errores.push(`items[${n}]: idProducto debe ser un número entero positivo.`);
+      if (!Number.isInteger(item.cantidad) || item.cantidad <= 0) errores.push(`items[${n}]: cantidad debe ser un número entero mayor a cero.`);
+      if (item.idEmpaque !== undefined && item.idEmpaque !== null && (!Number.isInteger(item.idEmpaque) || item.idEmpaque <= 0)) {
+        errores.push(`items[${n}]: idEmpaque debe ser un número entero positivo.`);
+      }
+      if (item.mensajeTarjeta && String(item.mensajeTarjeta).length > 255) errores.push(`items[${n}]: mensajeTarjeta debe tener máximo 255 caracteres.`);
+    });
+  }
+  if (errores.length > 0) return responderErrores(respuesta, errores);
+  return siguiente();
+}
+
+export function validarEstadoPedido(peticion, respuesta, siguiente) {
+  const { estadoPedido } = peticion.body || {};
+  if (!ESTADOS_PEDIDO.includes(estadoPedido)) {
+    return responderErrores(respuesta, [`estadoPedido debe ser uno de: ${ESTADOS_PEDIDO.join(', ')}.`]);
+  }
+  return siguiente();
+}

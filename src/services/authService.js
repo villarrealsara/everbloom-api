@@ -5,16 +5,11 @@ import { promisify } from 'node:util';
 import jwt from 'jsonwebtoken';
 import { CONFIG } from '../config/entorno.js';
 import * as usuarioModel from '../models/usuarioModel.js';
+import { ErrorApi } from '../utils/ErrorApi.js';
+
+export { ErrorApi };
 
 const scryptAsync = promisify(scrypt);
-
-/** Error con codigo HTTP, para que el controlador sepa que responder. */
-export class ErrorApi extends Error {
-  constructor(estado, mensaje) {
-    super(mensaje);
-    this.estado = estado;
-  }
-}
 
 /**
  * Cifra la contrasena. Nunca se guarda la contrasena real en la base de datos:
