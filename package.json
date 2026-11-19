@@ -1,12 +1,13 @@
 {
   "name": "everbloom-api",
   "version": "1.0.0",
-  "description": "EVERBLOOM - API REST de registro e inicio de sesion (GA7-220501096-AA5-EV01)",
+  "description": "EVERBLOOM - API REST del proyecto (usuarios, productos, inventario, pedidos) (GA7-220501096-AA5-EV03)",
   "type": "module",
   "main": "src/server.js",
   "scripts": {
     "start": "node --env-file=.env src/server.js",
-    "probar": "node --env-file=.env src/pruebas/probarApi.js"
+    "probar": "node --env-file=.env src/pruebas/probarApi.js",
+    "crear-admin": "node --env-file=.env scripts/crearAdmin.js"
   },
   "author": "Sara Julieth Villarreal Ortiz",
   "license": "ISC",
